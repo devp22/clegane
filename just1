@@ -1,0 +1,882 @@
+*******BFS Water jug***********
+import java.util.*;
+ 
+class Pair {
+    int j1, j2;
+    List<Pair> path;
+ 
+    Pair(int j1, int j2)
+    {
+        this.j1 = j1;
+        this.j2 = j2;
+        path = new ArrayList<>();
+    }
+ 
+    Pair(int j1, int j2, List<Pair> _path)
+    {
+        this.j1 = j1;
+        this.j2 = j2;
+        path = new ArrayList<>();
+        path.addAll(_path);
+        path.add(new Pair(this.j1, this.j2));
+    }
+}
+ 
+public class AI_P_2 {
+    public static void main(String[] args)
+        throws java.lang.Exception
+    {
+        int jug1,jug2,target;
+        Scanner sc = new Scanner(System.in);
+        System.out.print("Enter capacity of jug 1: ");
+        jug1 = sc.nextInt();
+        System.out.print("Enter capacity of jug 2: ");
+        jug2 = sc.nextInt();
+        System.out.print("Enter target capacity: ");
+        target = sc.nextInt();
+        getPathIfPossible(jug1, jug2, target);
+    }
+ 
+    private static void
+    getPathIfPossible(int jug1, int jug2, int target)
+    {
+        boolean[][] visited
+            = new boolean[jug1 + 1][jug2 + 1];
+        Queue<Pair> queue = new LinkedList<>();
+        Pair initialState = new Pair(0, 0);
+        initialState.path.add(new Pair(0, 0));
+        queue.offer(initialState);
+ 
+        while (!queue.isEmpty()) {
+            Pair curr = queue.poll();
+            if (curr.j1 > jug1 || curr.j2 > jug2
+                || visited[curr.j1][curr.j2])
+                continue;
+            visited[curr.j1][curr.j2] = true;
+            if (curr.j1 == target || curr.j2 == target) {
+                if (curr.j1 == target) {
+                    curr.path.add(new Pair(curr.j1, 0));
+                }
+                else {
+                    curr.path.add(new Pair(0, curr.j2));
+                }
+                int n = curr.path.size();
+                System.out.println(
+                    "Path of states of jugs followed is :");
+                for (int i = 0; i < n; i++)
+                    System.out.println(
+                        curr.path.get(i).j1 + " , "
+                        + curr.path.get(i).j2);
+                return;
+            }
+            queue.offer(new Pair(jug1, 0, curr.path));
+            queue.offer(new Pair(0, jug2, curr.path));
+ 
+            queue.offer(new Pair(jug1, curr.j2, curr.path));
+            queue.offer(new Pair(curr.j1, jug2, curr.path));
+ 
+            queue.offer(new Pair(0, curr.j2, curr.path));
+            queue.offer(new Pair(curr.j1, 0, curr.path));
+ 
+            int emptyJug = jug2 - curr.j2;
+            int amountTransferred
+                = Math.min(curr.j1, emptyJug);
+            int j2 = curr.j2 + amountTransferred;
+            int j1 = curr.j1 - amountTransferred;
+            queue.offer(new Pair(j1, j2, curr.path));
+ 
+            emptyJug = jug1 - curr.j1;
+            amountTransferred = Math.min(curr.j2, emptyJug);
+            j2 = curr.j2 - amountTransferred;
+            j1 = curr.j1 + amountTransferred;
+            queue.offer(new Pair(j1, j2, curr.path));
+        }
+ 
+        System.out.println("Not Possible to obtain target");
+    }
+} 
+
+********************************************DFS Water jug****************************************************
+
+
+import array as arr
+   
+def solve_waterjug(j1, j2, z,flag):
+    count = j1 + j2 #for total no. of iterations
+    jug1 = arr.array('i',[0])
+    jug2 = arr.array('i',[0])
+    message = ["initially both jugs are empty"]
+    i = 1
+
+    if(z == 0):
+        return jug1, jug2, i
+    
+    jug1.append(j1)
+    jug2.append(0)
+    if(flag == 1):
+        message.append("fill jug2 till its full")
+    else:
+        message.append("fill jug1 till its full")
+    i += 1
+    while(i <= 2*count):
+        if(jug1[i-1] == z):
+            if(jug2[i-1] == 0):
+                break
+            jug1.append(z)
+            jug2.append(0)
+            if(flag == 1):
+                message.append("empty jug1")
+            else:
+                message.append("empty jug2")
+            i += 1
+            break
+        
+        elif(jug2[i-1] == z):
+            if(jug1[i-1] == 0):
+                break
+            jug1.append(0)
+            jug2.append(z)
+            if(flag == 1):
+                message.append("empty jug2")
+            else:
+                message.append("empty jug1")
+            i += 1
+            break
+        
+        elif(jug1[i-1] == 0): #i.e. jug1 is empty
+            jug1.append(j1)
+            jug2.append(jug2[i-1]) #- jug1[i-1]
+            if(flag == 1):
+                message.append("Completely fill jug2")
+            else:
+                message.append("Completely fill jug1")
+            
+            
+        elif(jug1[i-1] == j1):
+            if(jug1[i-1] > j2):   
+                jug2.append(j2)
+                jug1.append(j1 - (j2 - jug2[i-1]))
+                if(flag == 1):
+                    message.append("Transfer from jug2 to jug1 so that jug1 is full")
+                else:
+                    message.append("Transfer from jug1 to jug2 so that jug2 is full")
+            else:
+                jug2.append(jug1[i-1])
+                jug1.append(0)
+                if(flag == 1):
+                    message.append("Transfer water from jug2 to jug1 till it is full, now jug2 has 0 litres of water")
+                else:
+                    message.append("Transfer water from jug1 to jug2 till it is full, now jug1 has 0 litres of water")
+                
+            
+        elif(jug2[i-1] == 0): #i.e. jug2 is empty
+            if(jug1[i-1] > j2):   
+                jug2.append(j2)
+                jug1.append(jug1[i-1]- jug2[i])
+                if(flag == 1):
+                    message.append("Transfer water from jug2 to jug1 till it is full")
+                else:
+                    message.append("Transfer water from jug1 to jug2 till it is full")
+            else:
+                jug2.append(jug1[i-1])
+                jug1.append(0)
+                if(flag ==1):
+                    message.append("Completely Transfer water from jug2 to jug1")
+                else:
+                    message.append("Completely Transfer water from jug1 to jug2")
+
+        elif(jug2[i-1] == j2):
+            jug2.append(0)
+            jug1.append(jug1[i-1])
+            if(flag == 1):
+                message.append("Empty Jug1")
+            else:
+                message.append("Empty Jug2")
+        i += 1
+
+    if(jug1[i-1] != z and jug2[i-1] != z):
+        return 0,0,0, message
+    return jug1, jug2, i, message
+
+while(1):
+    j1 = int(input("\nEnter capacity of Jug 1: "))
+    if(j1 == -1):
+        break
+    j2 = int(input("Enter capacity of Jug 2: "))
+    z = int(input("Enter expected Volume: "))
+    flag = 0
+
+    if(j1 > j2):
+        jug1, jug2, i, message = solve_waterjug(j1, j2, z, flag)
+    else:
+        flag = 1
+        jug2, jug1, i, message = solve_waterjug(j2, j1, z, flag)
+
+    if(i == 0):
+        print("No solution possible")
+    for j in range(0,i):
+        print("jug1: ", jug1[j], "and jug2: ", jug2[j], "(",message[j], ")")
+ 
+ 
+ 
+ 
+ 
+**********************************SIngle player heuristsic************************************
+
+import random
+print("#------------------#")
+print("| GUESS THE NUMBER |")
+print("#------------------#")
+print('\n')
+
+
+print('Range of Random Numbers.')
+start = int(input('Enter Starting Index: '))
+end = int(input('Enter Ending Index: '))
+number = random.randint(start, end)
+print('\n')
+
+
+while True:
+    guess = int(input('Guess the number:  '))
+    if guess > number:
+        print('\nHmmm, try a lower number...\n')
+
+    elif guess < number:
+        print('\nGo a little higher\n')
+
+    else:
+        print("Right on! Well done!")
+        break
+        
+        
+ ____________________________________________OR_____________________________________________
+ 
+ #include <stdio.h>
+#include <stdlib.h>
+char matrix[3][3]; char check(void);
+void init_matrix(void);
+void get_player_move(void);
+void get_computer_move(void);
+
+void disp_matrix(void);
+int main(void)
+{
+char done;
+printf("This is the game of Tic Tac Toe.\n");
+printf("You will be playing against the computer.\n");
+done = ' ';
+init_matrix();
+do {
+disp_matrix();
+get_player_move();
+done = check(); /* see if winner */
+if(done!= ' ') break; /* winner!*/
+get_computer_move();
+done = check(); /* see if winner */
+} while(done== ' ');
+if(done=='X') printf("You won!\n");
+else printf("I won!!!!\n");
+disp_matrix(); /* show final positions */
+return 0;
+}
+/* Initialize the matrix. */
+void init_matrix(void)
+{
+int i, j;
+
+for(i=0; i<3; i++)
+for(j=0; j<3; j++) matrix[i][j] = ' ';
+}
+/* Get a player's move. */
+void get_player_move(void)
+{
+int x, y;
+
+printf("Enter X,Y coordinates for your move: "); scanf("%d%*c%d", &x, &y); x--; y--;
+
+if(matrix[x][y]!= ' '){
+
+
+
+
+
+printf("Invalid move, try again.\n");
+get_player_move();
+}
+else matrix[x][y] = 'X';
+}
+/* Get a move from the computer. */
+void get_computer_move(void)
+{
+int i, j;
+for(i=0; i<3; i++){
+for(j=0; j<3; j++)
+if(matrix[i][j]==' ') break;
+if(matrix[i][j]==' ') break;
+
+}
+
+if(i*j==9) {
+printf("draw\n");
+exit(0);
+}
+else
+matrix[i][j] = 'O';
+}
+
+/* Display the matrix on the screen. */
+void disp_matrix(void)
+{
+int t;
+for(t=0; t<3; t++) {
+printf(" %c | %c | %c ",matrix[t][0],
+matrix[t][1], matrix [t][2]);
+if(t!=2) printf("\n---|---|---\n");
+}
+printf("\n");
+}
+
+/* See if there is a winner. */
+char check(void)
+{
+int i;
+
+for(i=0; i<3; i++) /* check rows */
+if(matrix[i][0]==matrix[i][1] &&
+matrix[i][0]==matrix[i][2]) return matrix[i][0];
+for(i=0; i<3; i++) /* check columns */
+if(matrix[0][i]==matrix[1][i] &&
+matrix[0][i]==matrix[2][i]) return matrix[0][i];
+/* test diagonals */
+if(matrix[0][0]==matrix[1][1] &&
+matrix[1][1]==matrix[2][2])
+return matrix[0][0];
+if(matrix[0][2]==matrix[1][1] &&
+
+
+
+
+
+
+
+matrix[1][1]==matrix[2][0])
+return matrix[0][2];
+return ' ';
+}
+
+
+
+
+
+
+
+*****************************A* algorithm*****************************************
+
+package node;
+import java.util.*;
+     
+public class Node implements Comparable<Node> {
+    private static int idCounter = 0;
+    public int id;
+    public Node parent = null;
+    public List<Edge> neighbors;
+    public double f = Double.MAX_VALUE;
+    public double g = Double.MAX_VALUE;
+    public double h; 
+    public static Node aStar(Node start, Node target)
+    {
+        PriorityQueue<Node> closedList = new PriorityQueue<>();
+        PriorityQueue<Node> openList = new PriorityQueue<>();
+        start.f = start.g + start.calculateHeuristic(target);
+        openList.add(start);
+        while(!openList.isEmpty())
+        {
+            Node n = openList.peek();
+            if(n == target){
+                return n;
+            }
+            for(Node.Edge edge : n.neighbors){
+                Node m = edge.node;
+                double totalWeight = n.g + edge.weight;
+
+                if(!openList.contains(m) && !closedList.contains(m)){
+                    m.parent = n;
+                    m.g = totalWeight;
+                    m.f = m.g + m.calculateHeuristic(target);
+                    openList.add(m);
+                } 
+                else {
+                    if(totalWeight < m.g){
+                        m.parent = n;
+                        m.g = totalWeight;
+                        m.f = m.g + m.calculateHeuristic(target);
+
+                        if(closedList.contains(m)){
+                            closedList.remove(m);
+                            openList.add(m);
+                        }
+                    }
+                }
+            }
+            openList.remove(n);
+            closedList.add(n);
+        }
+        return null;
+    }
+    public static void printPath(Node target){
+        Node n = target;
+        if(n==null)
+            return;
+        List<Integer> ids = new ArrayList<>();
+        while(n.parent != null){
+            ids.add(n.id);
+            n = n.parent;
+        }
+        ids.add(n.id);
+        Collections.reverse(ids);
+        for(int id : ids){
+            System.out.print(id + " ");
+        }
+        System.out.println("");
+    }
+    Node(double h){
+        this.h = h;
+        this.id = idCounter++;
+        this.neighbors = new ArrayList<>();
+    }
+    @Override
+    public int compareTo(Node n) {
+        return Double.compare(this.f, n.f);
+    }
+    public static class Edge {
+        Edge(int weight, Node node){
+            this.weight = weight;
+            this.node = node;
+        }
+        public int weight;
+        public Node node;
+    }
+    public void addBranch(int weight, Node node){
+        Edge newEdge = new Edge(weight, node);
+            neighbors.add(newEdge);
+    }
+    public double calculateHeuristic(Node target){
+        return this.h;
+    }
+    public static void main(String[] args) {
+        Node head = new Node(3);
+        head.g = 0;
+        Node n1 = new Node(2);
+        Node n2 = new Node(2);
+        Node n3 = new Node(2);
+        head.addBranch(1, n1);
+        head.addBranch(5, n2);
+        head.addBranch(2, n3);
+        n3.addBranch(1, n2);
+        Node n4 = new Node(1);
+        Node n5 = new Node(1);
+        Node target = new Node(0);
+        n1.addBranch(7, n4);
+        n2.addBranch(4, n5);
+        n3.addBranch(6, n4);
+        n4.addBranch(3, target);
+        n5.addBranch(1, n4);
+        n5.addBranch(3, target);
+        Node res = aStar(head, target);
+        printPath(res);
+    }
+}
+
+
+
+
+*********************************MiniMax*******************************************************
+
+
+package ai_p_6;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+import java.util.Scanner;
+
+public class TicTacToe {
+
+	private static int gameBoard[][] = new int[3][3];
+	private List<GameMove> availableGameMoves;
+	private static Scanner scanner = new Scanner(System.in);
+	private GameMove computersGameMove;
+
+	public List<GameMove> getAvailableGameMoves() {
+
+		availableGameMoves = new ArrayList<GameMove>();
+		for (int i = 0; i < 3; i++) {
+			for (int j = 0; j < 3; j++) {
+				if (gameBoard[i][j] == 0)
+					availableGameMoves.add(new GameMove(i, j));
+			}
+		}
+		return availableGameMoves;
+	}
+
+	public void displayGameBoard() {
+		for (int i = 0; i < 3; i++) {
+			for (int j = 0; j < 3; j++) {
+				System.out.print(gameBoard[i][j] + " ");
+			}
+			System.out.print(" |");
+			for (int j = 0; j < 3; j++) {
+				System.out.print(" " + i + " " + j + ",");
+			}
+			System.out.println();
+		}
+	}
+
+	private boolean isGameOver() {
+		return has1Won() || has2Won() || getAvailableGameMoves().isEmpty();
+	}
+
+	private boolean has1Won() {
+
+		if ((gameBoard[0][0] == gameBoard[1][1] && gameBoard[0][0] == gameBoard[2][2] && gameBoard[0][0] == 1)
+				|| (gameBoard[0][2] == gameBoard[1][1] && gameBoard[0][2] == gameBoard[2][0] && gameBoard[0][2] == 1)) {
+			// System.out.println("X Diagonal Win");
+			return true;
+		}
+		for (int i = 0; i < 3; ++i) {
+			if (((gameBoard[i][0] == gameBoard[i][1] && gameBoard[i][0] == gameBoard[i][2] && gameBoard[i][0] == 1) 
+					|| (gameBoard[0][i] == gameBoard[1][i] && gameBoard[0][i] == gameBoard[2][i] 
+							&& gameBoard[0][i] == 1))) {
+				// System.out.println("X Row or Column win");
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private boolean has2Won() {
+
+		if ((gameBoard[0][0] == gameBoard[1][1] && gameBoard[0][0] == gameBoard[2][2] && gameBoard[0][0] == 2)
+				|| (gameBoard[0][2] == gameBoard[1][1] && gameBoard[0][2] == gameBoard[2][0] && gameBoard[0][2] == 2)) {
+			// System.out.println("O Diagonal Win");
+			return true;
+		}
+		for (int i = 0; i < 3; ++i) {
+			if ((gameBoard[i][0] == gameBoard[i][1] && gameBoard[i][0] == gameBoard[i][2] && gameBoard[i][0] == 2)
+					|| (gameBoard[0][i] == gameBoard[1][i] && gameBoard[0][i] == gameBoard[2][i] 
+							&& gameBoard[0][i] == 2)) {
+				// System.out.println("O Row or Column win");
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * @param args
+	 */
+	public static void main(String[] args) {
+
+		TicTacToe game = new TicTacToe();
+		Random random = new Random();
+		game.displayGameBoard();
+		System.out.println("");
+		System.out.print("Who will play first? (C)omputer (H)uman ");
+		char firstMove = scanner.next().charAt(0);
+
+		if (firstMove == 'C') {
+			GameMove gameMove = new GameMove(random.nextInt(3), random.nextInt(3));
+			System.out.println("Computer will use 1, Human will use 2\n");
+			game.makeGameMove(gameMove, 1);
+			game.displayGameBoard();
+		}
+
+		while (!game.isGameOver()) {
+			System.out.print("Human Move: ");
+			GameMove gameMove = new GameMove(scanner.nextInt(), scanner.nextInt());
+			game.makeGameMove(gameMove, 2);
+			game.displayGameBoard();
+
+			if (game.isGameOver())
+				break;
+
+			game.minimax(0, 1);
+
+			game.makeGameMove(game.computersGameMove, 1);
+			game.displayGameBoard();
+
+		}
+
+		if (game.has1Won())
+			System.out.println("You Lose!");
+		else if (game.has2Won())
+			System.out.println("You Win..."); // never lose!
+		else
+			System.out.println("Draw Match!");
+	}
+
+	// the minimax algorithm
+	public int minimax(int depth, int turn) {
+
+		if (has1Won())
+			return +1;
+		if (has2Won())
+			return -1;
+
+		List<GameMove> gameMovesAvailable = getAvailableGameMoves();
+		if (gameMovesAvailable.isEmpty())
+			return 0;
+
+		int min = Integer.MAX_VALUE, max = Integer.MIN_VALUE;
+
+		for (int i = 0; i < gameMovesAvailable.size(); ++i) {
+
+			GameMove gameMove = gameMovesAvailable.get(i);
+
+			if (turn == 1) {
+				makeGameMove(gameMove, 1);
+				int currentScore = minimax(depth + 1, 2);
+				max = Math.max(currentScore, max);
+
+				if (depth == 0)
+					System.out.println("info: score for position " + (i+1) + ": " + currentScore);
+				if (currentScore >= 0) {
+					if (depth == 0)
+						computersGameMove = gameMove;
+				} else if (currentScore == 1) {
+					resetGameMove(gameMove);
+					break;
+				}
+				if (i == availableGameMoves.size() - 1 && max > 0) {
+					if (depth == 0)
+						computersGameMove = gameMove;
+				}
+			} else if (turn == 2) {
+				makeGameMove(gameMove, 2);
+				int currentScore = minimax(depth + 1, 1);
+				min = Math.min(currentScore, min);
+				if (min == -1) {
+					resetGameMove(gameMove);
+					break;
+				}
+			}
+			resetGameMove(gameMove);
+		}
+		return (turn == 1) ? max : min;
+	}
+
+	public void resetGameMove(GameMove move) {
+		gameBoard[move.getX()][move.getY()] = 0;
+	}
+
+	public void makeGameMove(GameMove move, int player) {
+
+		gameBoard[move.getX()][move.getY()] = player;
+	}
+
+}
+
+class GameMove {
+
+	private int x;
+	private int y;
+
+	public GameMove(int x, int y) {
+		this.x = x;
+		this.y = y;
+	}
+
+	/**
+	 * @return the x
+	 */
+	public int getX() {
+		return x;
+	}
+
+	/**
+	 * @return the y
+	 */
+	public int getY() {
+		return y;
+	}
+}
+
+
+**********************predicate prolog*************************
+
+father(a,b).
+father(a,c).
+father(b,d).
+father(b,e).
+father(c,f).
+brother(X,Y):-father(Z,X),father(Z,Y),not(X=Y).
+cousin(X,Y):-father(Z,X),father(W,Y),brother(Z,W).
+grandson(X,Y):-father(Y,Z),father(Z,X).
+descendent(X,Y):-father(Y,X);grandson(X,Y).
+
+
+*******************tower of hanoi***************************
+
+
+move(1,X,Y,_) :-
+   write('Move top disk from '), write(X), write(' to '), write(Y), nl.
+move(N,X,Y,Z) :-
+   N>1,
+   M is N-1,
+   move(M,X,Z,Y),
+   move(1,X,Y,_),
+   move(M,Z,Y,X).
+
+**********************nqueens******************************
+
+queens(N, Queens) :- 
+	length(Queens, N),
+	board(Queens, Board, 0, N, _, _), 
+	queens(Board, 0, Queens).
+
+board([], [], N, N, _, _).
+board([_|Queens], [Col-Vars|Board], Col0, N, [_|VR], VC) :- 
+	Col is Col0+1,
+	functor(Vars, f, N), 
+	constraints(N, Vars, VR, VC),
+	board(Queens, Board, Col, N, VR, [_|VC]).
+
+constraints(0, _, _, _) :- !.
+constraints(N, Row, [R|Rs], [C|Cs]) :- 
+	arg(N, Row, R-C),
+	M is N-1,
+	constraints(M, Row, Rs, Cs).
+
+queens([], _, []).
+queens([C|Cs], Row0, [Col|Solution]) :- 
+	Row is Row0+1,
+	select(Col-Vars, [C|Cs], Board),
+	arg(Row, Vars, Row-Row),
+	queens(Board, Row, Solution).
+
+
+************************8 puzzle**********************************
+
+test(Plan):-
+    write('Initial state:'),nl,
+    Init= [at(tile4,1), at(tile3,2), at(tile8,3), at(empty,4), at(tile2,5), at(tile6,6), at(tile5,7), at(tile1,8), at(tile7,9)],
+    write_sol(Init),
+    Goal= [at(tile1,1), at(tile2,2), at(tile3,3), at(tile4,4), at(empty,5), at(tile5,6), at(tile6,7), at(tile7,8), at(tile8,9)],
+    nl,write('Goal state:'),nl,
+    write(Goal),nl,nl,
+    solve(Init,Goal,Plan).
+
+solve(State, Goal, Plan):-
+    solve(State, Goal, [], Plan).
+
+is_movable(X1,Y1) :- (1 is X1 - Y1) ; (-1 is X1 - Y1) ; (3 is X1 - Y1) ; (-3 is X1 - Y1).
+
+
+solve(State, Goal, Plan, Plan):-
+    is_subset(Goal, State), nl,
+    write_sol(Plan).
+
+solve(State, Goal, Sofar, Plan):-
+    act(Action, Preconditions, Delete, Add),
+    is_subset(Preconditions, State),
+    \+ member(Action, Sofar),
+    delete_list(Delete, State, Remainder),
+    append(Add, Remainder, NewState),
+    solve(NewState, Goal, [Action|Sofar], Plan).
+
+
+act(move(X,Y,Z),
+    [at(X,Y), at(empty,Z), is_movable(Y,Z)],
+    [at(X,Y), at(empty,Z)],
+    [at(X,Z), at(empty,Y)]).
+
+
+is_subset([H|T], Set):-
+    member(H, Set),
+    is_subset(T, Set).
+is_subset([], _).
+
+
+delete_list([H|T], Curstate, Newstate):-
+    remove(H, Curstate, Remainder),
+    delete_list(T, Remainder, Newstate).
+delete_list([], Curstate, Curstate).
+
+remove(X, [X|T], T).
+remove(X, [H|T], [H|R]):-
+    remove(X, T, R).
+
+write_sol([]).
+write_sol([H|T]):-
+    write_sol(T),
+    write(H), nl.
+
+append([H|T], L1, [H|L2]):-
+    append(T, L1, L2).
+append([], L, L).
+
+member(X, [X|_]).
+member(X, [_|T]):-
+    member(X, T).
+
+
+*******************traevlling salesman*********************************
+
+edge(a, b, 3).
+edge(a, c, 4).
+edge(a, d, 2).
+edge(a, e, 7).
+edge(b, c, 4).
+edge(b, d, 6).
+edge(b, e, 3).
+edge(c, d, 5).
+edge(c, e, 8).
+edge(d, e, 6).
+edge(b, a, 3).
+edge(c, a, 4).
+edge(d, a, 2).
+edge(e, a, 7).
+edge(c, b, 4).
+edge(d, b, 6).
+edge(e, b, 3).
+edge(d, c, 5).
+edge(e, c, 8).
+edge(e, d, 6).
+edge(a, h, 2).
+edge(h, d, 1).
+
+
+len([], 0).
+len([H|T], N):- len(T, X), N is X+1 .
+
+
+
+best_path(Visited, Total):- path(a, a, Visited, Total).
+
+
+
+path(Start, Fin, Visited, Total) :- path(Start, Fin, [Start], Visited, 0, Total).
+
+
+path(Start, Fin, CurrentLoc, Visited, Costn, Total) :-
+    edge(Start, StopLoc, Distance), NewCostn is Costn + Distance, \+ member(StopLoc, CurrentLoc),
+    path(StopLoc, Fin, [StopLoc|CurrentLoc], Visited, NewCostn, Total).
+
+
+
+path(Start, Fin, CurrentLoc, Visited, Costn, Total) :-
+    edge(Start, Fin, Distance), reverse([Fin|CurrentLoc], Visited), len(Visited, Q),
+    (Q\=7 -> Total is 100000; Total is Costn + Distance).
+
+
+shortest_path(Path):-setof(Cost-Path, best_path(Path,Cost), Holder),pick(Holder,Path).
+
+
+best(Cost-Holder,Bcost-_,Cost-Holder):- Cost<Bcost,!.
+best(_,X,X).
+
+
+pick([Cost-Holder|R],X):- pick(R,Bcost-Bholder),best(Cost-Holder,Bcost-Bholder,X),!.
+pick([X],X).
